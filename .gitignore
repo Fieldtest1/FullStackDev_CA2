@@ -7,4 +7,5 @@ server/.env
 *.log
 npm-debug.log*
 Thumbs.db
-.DS_Storenode_modules/
+.DS_Store
+node_modules/
