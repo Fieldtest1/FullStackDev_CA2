@@ -1,24 +1,18 @@
-import { NavLink } from "react-router-dom";
-
+import { Link } from "react-router-dom";
+import "./pages/Home.css";
 
 export default function Navbar() {
   return (
-    <nav className="nav">
-      <NavLink to="/" className="site-title">
-        Site Name
-      </NavLink>
+    <div className="nav">
+      <div className="navInner">
+        <div className="logo">Site Name</div>
 
-      <ul>
-        <li>
-          <NavLink to="/shop">Shop</NavLink>
-        </li>
-        <li>
-          <NavLink to="/orders">Orders</NavLink>
-        </li>
-        <li>
-          <NavLink to="/admin">Admin</NavLink>
-        </li>
-      </ul>
-    </nav>
+        <div className="navLinks">
+          <Link to="/shop">Shop</Link>
+          <Link to="/orders">Orders</Link>
+          <Link to="/admin">Admin</Link>
+        </div>
+      </div>
+    </div>
   );
 }

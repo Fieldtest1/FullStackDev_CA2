@@ -2,13 +2,21 @@
 require(`dotenv`).config({path:`./config/.env`})
 
 
+// Database
+require(`./config/db`)
+
+
 // Express
 const express = require(`express`)
 const app = express()
 
-
 app.use(require(`body-parser`).json())
 app.use(require(`cors`)({credentials: true, origin: process.env.LOCAL_HOST}))
+
+const createError = require('http-errors')
+
+// Routers
+ app.use(require(`./routes/products`))
 
 
 // Port

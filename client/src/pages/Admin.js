@@ -1,30 +1,10 @@
-import React, { useState } from "react";
 import "./Home.css";
+import axios from "axios";
+import { useState, useEffect } from "react";
 
 export default function Admin() {
-  const [products, setProducts] = useState([
-    {
-      id: 1,
-      name: "Cotton Fabric Bundle",
-      category: "Fabric",
-      price: 12.99,
-      stock: 10,
-    },
-    {
-      id: 2,
-      name: "Sewing Thread Set",
-      category: "Thread",
-      price: 6.99,
-      stock: 25,
-    },
-    {
-      id: 3,
-      name: "Starter Needle Pack",
-      category: "Needles",
-      price: 3.5,
-      stock: 8,
-    },
-  ]);
+
+  const [products, setProducts] = useState([]);
 
   const [name, setName] = useState("");
   const [category, setCategory] = useState("Fabric");
@@ -33,10 +13,14 @@ export default function Admin() {
 
   const [editingId, setEditingId] = useState(null);
 
-  const handleNameChange = (e) => setName(e.target.value);
-  const handleCategoryChange = (e) => setCategory(e.target.value);
-  const handlePriceChange = (e) => setPrice(e.target.value);
-  const handleStockChange = (e) => setStock(e.target.value);
+  // GET products
+  useEffect(() => {
+    axios.get("http://localhost:4000/products")
+      .then(res => {
+        setProducts(res.data);
+      })
+      .catch(err => console.log(err));
+  }, []);
 
   const clearForm = () => {
     setName("");
@@ -47,172 +31,102 @@ export default function Admin() {
   };
 
   const addProduct = () => {
-    if (name.trim() === "" || price === "" || stock === "") {
-      alert("Please fill in name, price and stock.");
-      return;
-    }
-
     const newProduct = {
-      id: Date.now(),
-      name: name.trim(),
-      category,
+      name: name,
+      category: category,
       price: Number(price),
-      stock: Number(stock),
+      stock: Number(stock)
     };
 
-    setProducts([...products, newProduct]);
-    clearForm();
+    axios.post("http://localhost:4000/products", newProduct)
+      .then(() => {
+        window.location.reload(); // simple way for now
+      });
   };
 
-  const startEdit = (p) => {
-    setEditingId(p.id);
-    setName(p.name);
-    setCategory(p.category);
-    setPrice(String(p.price));
-    setStock(String(p.stock));
-  };
+  const updateProduct = () => {
+    const updatedProduct = {
+      name: name,
+      category: category,
+      price: Number(price),
+      stock: Number(stock)
+    };
 
-  const saveEdit = () => {
-    if (name.trim() === "" || price === "" || stock === "") {
-      alert("Please fill in name, price and stock.");
-      return;
-    }
-
-    const updated = products.map((p) => {
-      if (p.id === editingId) {
-        return {
-          ...p,
-          name: name.trim(),
-          category,
-          price: Number(price),
-          stock: Number(stock),
-        };
-      }
-      return p;
-    });
-
-    setProducts(updated);
-    clearForm();
+    axios.put(`http://localhost:4000/products/${editingId}`, updatedProduct)
+      .then(() => {
+        window.location.reload();
+      });
   };
 
   const deleteProduct = (id) => {
-    const ok = window.confirm("Delete this product?");
-    if (!ok) return;
+    axios.delete(`http://localhost:4000/products/${id}`)
+      .then(() => {
+        window.location.reload();
+      });
+  };
 
-    const filtered = products.filter((p) => p.id !== id);
-    setProducts(filtered);
+  const editProduct = (product) => {
+    setEditingId(product._id);
+    setName(product.name);
+    setCategory(product.category);
+    setPrice(product.price);
+    setStock(product.stock);
   };
 
   return (
-    <div className="page">
-      <h1>Admin</h1>
-      <p>Add / Edit / Delete products (UI only for now).</p>
+    <div style={{ padding: "20px" }}>
+      <h1>Admin Page</h1>
 
-      <div className="adminBox">
-        <h2>{editingId ? "Edit Product" : "Add Product"}</h2>
+      <h2>{editingId ? "Edit Product" : "Add Product"}</h2>
 
-        <div className="formRow">
-          <label className="formLabel">Name</label>
-          <input
-            className="input"
-            value={name}
-            onChange={handleNameChange}
-            placeholder="e.g. Cotton Fabric Bundle"
-          />
+      <input
+        placeholder="Name"
+        value={name}
+        onChange={(e) => setName(e.target.value)}
+      />
+
+      <select
+        value={category}
+        onChange={(e) => setCategory(e.target.value)}
+      >
+        <option value="Fabric">Fabric</option>
+        <option value="Thread">Thread</option>
+        <option value="Needles">Needles</option>
+      </select>
+
+      <input
+        placeholder="Price"
+        value={price}
+        onChange={(e) => setPrice(e.target.value)}
+      />
+
+      <input
+        placeholder="Stock"
+        value={stock}
+        onChange={(e) => setStock(e.target.value)}
+      />
+
+      {editingId ? (
+        <button onClick={updateProduct}>Update</button>
+      ) : (
+        <button onClick={addProduct}>Add</button>
+      )}
+
+      <button onClick={clearForm}>Clear</button>
+
+      <hr />
+
+      <h2>Products</h2>
+
+      {products.map(product => (
+        <div key={product._id}>
+          {product.name} | {product.category} | €{product.price} | Stock: {product.stock}
+
+          <button onClick={() => editProduct(product)}>Edit</button>
+          <button onClick={() => deleteProduct(product._id)}>Delete</button>
         </div>
+      ))}
 
-        <div className="formRow">
-          <label className="formLabel">Category</label>
-          <select className="input" value={category} onChange={handleCategoryChange}>
-            <option>Fabric</option>
-            <option>Thread</option>
-            <option>Needles</option>
-            <option>Tools</option>
-            <option>Kits</option>
-          </select>
-        </div>
-
-        <div className="formRow">
-          <label className="formLabel">Price (€)</label>
-          <input
-            className="input"
-            type="number"
-            step="0.01"
-            value={price}
-            onChange={handlePriceChange}
-            placeholder="e.g. 12.99"
-          />
-        </div>
-
-        <div className="formRow">
-          <label className="formLabel">Stock</label>
-          <input
-            className="input"
-            type="number"
-            value={stock}
-            onChange={handleStockChange}
-            placeholder="e.g. 10"
-          />
-        </div>
-
-        <div className="btnRow">
-          {!editingId && (
-            <button className="btn" onClick={addProduct}>
-              Add Product
-            </button>
-          )}
-
-          {editingId && (
-            <>
-              <button className="btn" onClick={saveEdit}>
-                Save
-              </button>
-              <button className="btnSmall" onClick={clearForm}>
-                Cancel
-              </button>
-            </>
-          )}
-        </div>
-      </div>
-
-      <div className="adminBox">
-        <h2>Products ({products.length})</h2>
-
-        {products.length === 0 && <p>No products yet.</p>}
-
-        {products.length > 0 && (
-          <table className="adminTable">
-            <thead>
-              <tr>
-                <th>Name</th>
-                <th>Category</th>
-                <th>Price</th>
-                <th>Stock</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-
-            <tbody>
-              {products.map((p) => (
-                <tr key={p.id}>
-                  <td>{p.name}</td>
-                  <td>{p.category}</td>
-                  <td>€{p.price.toFixed(2)}</td>
-                  <td>{p.stock}</td>
-                  <td>
-                    <button className="btnSmall" onClick={() => startEdit(p)}>
-                      Edit
-                    </button>{" "}
-                    <button className="btnSmall" onClick={() => deleteProduct(p.id)}>
-                      Delete
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        )}
-      </div>
     </div>
   );
 }

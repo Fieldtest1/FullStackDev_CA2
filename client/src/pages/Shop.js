@@ -5,34 +5,10 @@ export default function Shop() {
   const [cart, setCart] = useState([]);
 
   const products = [
-    {
-      id: 1,
-      name: "Cotton Fabric Bundle",
-      category: "Fabric",
-      price: 12.99,
-      img: "/images/fabric.jpg",
-    },
-    {
-      id: 2,
-      name: "Sewing Thread Set",
-      category: "Thread",
-      price: 6.99,
-      img: "/images/thread.jpg",
-    },
-    {
-      id: 3,
-      name: "Starter Needle Pack",
-      category: "Needles",
-      price: 3.5,
-      img: "/images/needles.jpg",
-    },
-    {
-      id: 4,
-      name: "Measuring Tape",
-      category: "Tools",
-      price: 2.99,
-      img: "/images/tape.jpg",
-    },
+    { id: 1, name: "Cotton Fabric Bundle", category: "Fabric", price: 12.99, img: "/images/fabric.jpg" },
+    { id: 2, name: "Sewing Thread Set", category: "Thread", price: 6.99, img: "/images/thread.jpg" },
+    { id: 3, name: "Starter Needle Pack", category: "Needles", price: 3.5, img: "/images/needles.jpg" },
+    { id: 4, name: "Measuring Tape", category: "Tools", price: 2.99, img: "/images/tape.jpg" },
   ];
 
   const addToCart = (product) => {
@@ -40,8 +16,7 @@ export default function Shop() {
   };
 
   const removeFromCart = (indexToRemove) => {
-    const newCart = cart.filter((item, index) => index !== indexToRemove);
-    setCart(newCart);
+    setCart(cart.filter((_, index) => index !== indexToRemove));
   };
 
   const total = cart.reduce((sum, item) => sum + item.price, 0);
@@ -51,6 +26,7 @@ export default function Shop() {
       <h1>Shop</h1>
       <p>Browse fabrics, threads, needles & tools.</p>
 
+      {/* PRODUCTS */}
       <div className="cardContainer">
         {products.map((p) => (
           <div className="card" key={p.id}>
@@ -66,20 +42,22 @@ export default function Shop() {
         ))}
       </div>
 
+      {/* CART PREVIEW */}
       <div className="cartBox">
         <h2>Cart Preview</h2>
 
-        {cart.length === 0 && <p>Your cart is empty.</p>}
-
-        {cart.length > 0 && (
+        {cart.length === 0 ? (
+          <p>Your cart is empty.</p>
+        ) : (
           <>
             <ul className="cartList">
               {cart.map((item, index) => (
                 <li key={index} className="cartItem">
-                  <span>
-                    {item.name} - €{item.price.toFixed(2)}
-                  </span>
-                  <button className="btnSmall" onClick={() => removeFromCart(index)}>
+                  {item.name} - €{item.price.toFixed(2)}
+                  <button
+                    className="btnSmall"
+                    onClick={() => removeFromCart(index)}
+                  >
                     Remove
                   </button>
                 </li>
@@ -87,6 +65,10 @@ export default function Shop() {
             </ul>
 
             <p className="total">Total: €{total.toFixed(2)}</p>
+
+            <button className="btn">
+              Checkout
+            </button>
           </>
         )}
       </div>

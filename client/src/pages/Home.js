@@ -1,8 +1,8 @@
 import React from "react";
+import { Link } from "react-router-dom";
 import "./Home.css";
 
 export default function Home() {
-  // hardcoded featured products (simple, no loops)
   const p1 = {
     name: "Cotton Fabric Bundle",
     category: "Fabric",
@@ -30,7 +30,6 @@ export default function Home() {
   return (
     <div className="home">
 
-     
       <section className="hero">
         <div className="heroText">
           <h1>
@@ -39,11 +38,12 @@ export default function Home() {
           </h1>
 
           <p className="heroP">
-            Everything you need for sewing and crafting — fabric, thread, needles,
-            patterns and more.
+            Everything you need for sewing and crafting.
           </p>
 
-          <button className="primaryBtn">Shop Now</button>
+          <Link to="/shop">
+            <button className="primaryBtn">Shop Now</button>
+          </Link>
         </div>
 
         <div className="heroImageBox">
@@ -55,23 +55,12 @@ export default function Home() {
         </div>
       </section>
 
-      {/* QUICK INFO BOXES */}
       <section className="badges">
         <div className="badge">Fast Delivery</div>
         <div className="badge">Secure Payments</div>
         <div className="badge">Quality Materials</div>
       </section>
 
-      {/* SEARCH BAR (UI only) */}
-      <section className="searchBar">
-        <input
-          className="searchInput"
-          type="text"
-          placeholder="Search products (UI only for now)"
-        />
-      </section>
-
-      {/* FEATURED PRODUCTS TABLE */}
       <section className="featured">
         <h2>Featured Products</h2>
 
@@ -85,83 +74,22 @@ export default function Home() {
               <th>Stock</th>
             </tr>
           </thead>
-
           <tbody>
-            <tr>
-              <td>
-                <img className="tableImg" src={p1.img} alt={p1.name} />
-              </td>
-              <td>{p1.name}</td>
-              <td>{p1.category}</td>
-              <td>€{p1.price}</td>
-              <td>{p1.stock}</td>
-            </tr>
-
-            <tr>
-              <td>
-                <img className="tableImg" src={p2.img} alt={p2.name} />
-              </td>
-              <td>{p2.name}</td>
-              <td>{p2.category}</td>
-              <td>€{p2.price}</td>
-              <td>{p2.stock}</td>
-            </tr>
-
-            <tr>
-              <td>
-                <img className="tableImg" src={p3.img} alt={p3.name} />
-              </td>
-              <td>{p3.name}</td>
-              <td>{p3.category}</td>
-              <td>€{p3.price}</td>
-              <td>{p3.stock}</td>
-            </tr>
+            {[p1, p2, p3].map((p, index) => (
+              <tr key={index}>
+                <td><img className="tableImg" src={p.img} alt={p.name} /></td>
+                <td>{p.name}</td>
+                <td>{p.category}</td>
+                <td>€{p.price}</td>
+                <td>{p.stock}</td>
+              </tr>
+            ))}
           </tbody>
         </table>
-
       </section>
-      <section>
-  <div className="cardContainer">
-    <div className="card">
-      <img src="/images/fabric.jpg" alt="Fabric" />
-      <h3>Cotton Fabric</h3>
-      <p>Good quality cotton material.</p>
-      <p>€12.99</p>
-    </div>
 
-    <div className="card">
-      <img src="/images/fabric.jpg" alt="Fabric" />
-      <h3>Cotton Fabric</h3>
-      <p>Good quality cotton material.</p>
-      <p>€12.99</p>
-    </div>
-
-    <div className="card">
-      <img src="/images/fabric.jpg" alt="Fabric" />npm start
-      <h3>Cotton Fabric</h3>
-      <p>Good quality cotton material.</p>
-      <p>€12.99</p>
-    </div>
-      <div className="card">
-      <img src="/images/fabric.jpg" alt="Fabric" />
-      <h3>Cotton Fabric</h3>
-      <p>Good quality cotton material.</p>
-      <p>€12.99</p>
-    </div>
-      <div className="card">
-      <img src="/images/fabric.jpg" alt="Fabric" />
-      <h3>Cotton Fabric</h3>
-      <p>Good quality cotton material.</p>
-      <p>€12.99</p>
-    </div>
-  </div>
-</section>
-
-  
-
-      {/* FOOTER */}
       <footer className="footer">
-        <p>About Us | Privacy Policy | Contact Us</p>
+        <p>© 2026 Sewing Supplies | About | Privacy | Contact</p>
       </footer>
     </div>
   );
