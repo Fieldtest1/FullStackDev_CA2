@@ -291,3 +291,30 @@ body {
 .formActions {
   margin-top: 10px;
 }
+.controlsRow{
+  display:flex;
+  gap:12px;
+  margin: 20px 0;
+  flex-wrap: wrap;
+}
+
+.input{
+  padding:10px;
+  border:1px solid #ddd;
+  border-radius:6px;
+  min-width: 220px;
+}
+
+.select{
+  padding:10px;
+  border:1px solid #ddd;
+  border-radius:6px;
+}
+
+.btnSmall{
+  margin-left:10px;
+  padding:6px 10px;
+  border:none;
+  border-radius:6px;
+  cursor:pointer;
+}
