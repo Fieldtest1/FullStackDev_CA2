@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useState } from "react";
 import axios from "axios";
 import "./Home.css";
 
@@ -6,52 +6,17 @@ export default function Shop() {
   const [products, setProducts] = useState([]);
   const [cart, setCart] = useState([]);
 
-  // search/filter/sort state
+  // NEW: search/filter/sort state
   const [searchText, setSearchText] = useState("");
-  const [category, setCategory] = useState("All");
-  const [sortBy, setSortBy] = useState("name-asc");
+  const [categoryFilter, setCategoryFilter] = useState("All");
+  const [sortOption, setSortOption] = useState("none");
 
-  // load products once
   useEffect(() => {
     axios
       .get("http://localhost:4000/products")
       .then((res) => setProducts(res.data))
       .catch((err) => console.log(err));
   }, []);
-
-  // categories for dropdown
-  const categories = useMemo(() => {
-    const cats = products.map((p) => p.category).filter(Boolean);
-    return ["All", ...Array.from(new Set(cats))];
-  }, [products]);
-
-  // search + filter + sort together
-  const filteredProducts = useMemo(() => {
-    let list = [...products];
-
-    // filter category
-    if (category !== "All") {
-      list = list.filter((p) => p.category === category);
-    }
-
-    // search name (and category too)
-    if (searchText.trim() !== "") {
-      const q = searchText.toLowerCase();
-      list = list.filter(
-        (p) =>
-          (p.name && p.name.toLowerCase().includes(q)) ||
-          (p.category && p.category.toLowerCase().includes(q))
-      );
-    }
-
-    // sort
-    if (sortBy === "name-asc") list.sort((a, b) => (a.name || "").localeCompare(b.name || ""));
-    if (sortBy === "name-desc") list.sort((a, b) => (b.name || "").localeCompare(a.name || ""));
-    if (sortBy === "price-asc") list.sort((a, b) => Number(a.price) - Number(b.price));
-    if (sortBy === "price-desc") list.sort((a, b) => Number(b.price) - Number(a.price));
-
-    return list;
-  }, [products, category, searchText, sortBy]);
 
   const addToCart = (product) => {
     setCart([...cart, product]);
@@ -63,21 +28,52 @@ export default function Shop() {
 
   const total = cart.reduce((sum, item) => sum + Number(item.price), 0);
 
+  // NEW: build category dropdown list
+  const categories = ["All", ...new Set(products.map((p) => p.category))];
+
+  // NEW: apply Search + Filter + Sort together
+  const displayedProducts = products
+    .filter((p) => {
+      // FILTER category
+      const categoryMatch =
+        categoryFilter === "All" || p.category === categoryFilter;
+
+      // SEARCH (name + category)
+      const text = searchText.toLowerCase();
+      const searchMatch =
+        p.name.toLowerCase().includes(text) ||
+        p.category.toLowerCase().includes(text);
+
+      return categoryMatch && searchMatch;
+    })
+    .sort((a, b) => {
+      if (sortOption === "priceLow") return Number(a.price) - Number(b.price);
+      if (sortOption === "priceHigh") return Number(b.price) - Number(a.price);
+      if (sortOption === "nameAZ") return a.name.localeCompare(b.name);
+      if (sortOption === "nameZA") return b.name.localeCompare(a.name);
+      return 0; // none
+    });
+
   return (
     <div className="page">
       <h1>Shop</h1>
       <p>Browse fabrics, threads, needles & tools.</p>
 
-      {/* SEARCH / FILTER / SORT */}
+      {/* NEW: Controls */}
       <div className="controlsRow">
         <input
           className="input"
+          type="text"
           placeholder="Search products..."
           value={searchText}
           onChange={(e) => setSearchText(e.target.value)}
         />
 
-        <select className="select" value={category} onChange={(e) => setCategory(e.target.value)}>
+        <select
+          className="select"
+          value={categoryFilter}
+          onChange={(e) => setCategoryFilter(e.target.value)}
+        >
           {categories.map((c) => (
             <option key={c} value={c}>
               {c}
@@ -85,17 +81,22 @@ export default function Shop() {
           ))}
         </select>
 
-        <select className="select" value={sortBy} onChange={(e) => setSortBy(e.target.value)}>
-          <option value="name-asc">Name (A → Z)</option>
-          <option value="name-desc">Name (Z → A)</option>
-          <option value="price-asc">Price (Low → High)</option>
-          <option value="price-desc">Price (High → Low)</option>
+        <select
+          className="select"
+          value={sortOption}
+          onChange={(e) => setSortOption(e.target.value)}
+        >
+          <option value="none">Sort: None</option>
+          <option value="priceLow">Price: Low → High</option>
+          <option value="priceHigh">Price: High → Low</option>
+          <option value="nameAZ">Name: A → Z</option>
+          <option value="nameZA">Name: Z → A</option>
         </select>
       </div>
 
       {/* PRODUCTS */}
       <div className="cardContainer">
-        {filteredProducts.map((p) => (
+        {displayedProducts.map((p) => (
           <div className="card" key={p._id}>
             <h3>{p.name}</h3>
             <p>{p.category}</p>
@@ -108,7 +109,7 @@ export default function Shop() {
           </div>
         ))}
 
-        {filteredProducts.length === 0 && <p>No products match your search.</p>}
+        {displayedProducts.length === 0 && <p>No products match.</p>}
       </div>
 
       {/* CART PREVIEW */}
@@ -123,7 +124,10 @@ export default function Shop() {
               {cart.map((item, index) => (
                 <li key={index} className="cartItem">
                   {item.name} - €{Number(item.price).toFixed(2)}{" "}
-                  <button className="btnSmall" onClick={() => removeFromCart(index)}>
+                  <button
+                    className="btnSmall"
+                    onClick={() => removeFromCart(index)}
+                  >
                     Remove
                   </button>
                 </li>
@@ -131,8 +135,6 @@ export default function Shop() {
             </ul>
 
             <p className="total">Total: €{total.toFixed(2)}</p>
-
-            <button className="btn">Checkout</button>
           </>
         )}
       </div>
