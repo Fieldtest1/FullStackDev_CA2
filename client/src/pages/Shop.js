@@ -11,6 +11,11 @@ export default function Shop() {
   const [categoryFilter, setCategoryFilter] = useState("All");
   const [sortOption, setSortOption] = useState("none");
 
+  //for the checkout modal
+  const [showCheckout, setShowCheckout] = useState(false);
+  //for the success message after checkout
+  const [orderSuccess, setOrderSuccess] = useState(false);
+
   useEffect(() => {
     axios
       .get("http://localhost:4000/products")
@@ -24,6 +29,22 @@ export default function Shop() {
 
   const removeFromCart = (indexToRemove) => {
     setCart(cart.filter((_, i) => i !== indexToRemove));
+  };
+
+  //adding the checkout function
+  const checkout = () => 
+  {
+    //send the objects in the cart to the server
+    axios
+      .post("http://localhost:4000/checkout", { cart })
+      .then(() => {
+      //success msg
+      setOrderSuccess(true);
+      //empty cart and close modal
+      setCart([]);
+      })
+      //error handle
+      .catch((err) => console.log(err));
   };
 
   const total = cart.reduce((sum, item) => sum + Number(item.price), 0);
@@ -135,9 +156,53 @@ export default function Shop() {
             </ul>
 
             <p className="total">Total: €{total.toFixed(2)}</p>
+            {/*once items are in the cart, the checkout button appears*/}
+            <button className="btn" onClick={() => setShowCheckout(true)} disabled={cart.length === 0}>
+              Checkout
+            </button>
           </>
         )}
       </div>
+      {/*Checkout Modal*/}
+      {showCheckout && (
+        <div className="modalOverlay">
+          <div className="modalBox">
+            {orderSuccess ? 
+            (
+              <>
+                <h2>Your order has been placed!</h2>
+                <p>Thank you for your patronage!</p>
+
+                <button className="btn" onClick={() => {setShowCheckout(false); setOrderSuccess(false);}}>Close</button>
+              </>
+            ) : (
+              <>
+                <h2>Confirm Checkout</h2>
+
+                <p>You are about to purchase:</p>
+
+                <ul>
+                  {cart.map((item, index) => (
+                    <li key={index}>
+                      {item.name} - €{Number(item.price).toFixed(2)}
+                    </li>
+                  ))}
+                </ul>
+
+                <p><strong>Total: €{total.toFixed(2)}</strong></p>
+
+                <div className="modalButtons">
+                  <button className="btn" onClick={checkout}>
+                    Confirm Order
+                  </button>
+
+                  <button className="btn" onClick={() => setShowCheckout(false)}>Cancel</button>
+                </div>
+              </>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

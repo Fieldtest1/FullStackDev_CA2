@@ -17,6 +17,7 @@ const createError = require('http-errors')
 
 // Routers
  app.use(require(`./routes/products`))
+ app.use(require(`./routes/checkout`))
 
 
 // Port
