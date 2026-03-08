@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import "./Home.css";
+import "../css/Home.css";
 
 export default function Orders() {
   const [orders] = useState([

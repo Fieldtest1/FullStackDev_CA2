@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import "./Home.css";
+import "../css/Home.css";
 
 export default function Shop() {
   const [products, setProducts] = useState([]);
